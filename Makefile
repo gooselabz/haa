@@ -13,6 +13,9 @@ LOCAL_CONFIG_PATH ?= config/
 BACKUP_DIR ?= backups
 VENV_PATH ?= venv
 TOOLS_PATH ?= tools
+USE_RSYNC_SUDO ?=
+RSYNC_PATH ?= $(if $(USE_RSYNC_SUDO),sudo rsync,rsync)
+RSYNC_FLAGS ?= -avz --delete --exclude-from=.rsync-excludes
 
 # Colors for output
 GREEN = \033[0;32m
@@ -43,7 +46,7 @@ help:
 # Pull configuration from Home Assistant
 pull: check-env
 	@echo "$(GREEN)Pulling configuration from Home Assistant...$(NC)"
-	@rsync -avz --delete --exclude-from=.rsync-excludes $(HA_HOST):$(HA_REMOTE_PATH) $(LOCAL_CONFIG_PATH)
+	@rsync $(RSYNC_FLAGS) --rsync-path='$(RSYNC_PATH)' $(HA_HOST):$(HA_REMOTE_PATH) $(LOCAL_CONFIG_PATH)
 	@echo "$(GREEN)Configuration pulled successfully!$(NC)"
 	@echo "$(YELLOW)Running validation to ensure integrity...$(NC)"
 	@$(MAKE) validate
@@ -53,7 +56,7 @@ push: check-env
 	@echo "$(GREEN)Validating configuration before push...$(NC)"
 	@$(MAKE) validate
 	@echo "$(GREEN)Validation passed! Pushing to Home Assistant...$(NC)"
-	@rsync -avz --delete --exclude-from=.rsync-excludes $(LOCAL_CONFIG_PATH) $(HA_HOST):$(HA_REMOTE_PATH)
+	@rsync $(RSYNC_FLAGS) --rsync-path='$(RSYNC_PATH)' $(LOCAL_CONFIG_PATH) $(HA_HOST):$(HA_REMOTE_PATH)
 	@echo "$(GREEN)Configuration pushed successfully!$(NC)"
 	@echo "$(GREEN)Reloading Home Assistant configuration...$(NC)"
 	@. $(VENV_PATH)/bin/activate && python $(TOOLS_PATH)/reload_config.py
@@ -130,7 +133,7 @@ format-yaml:
 		for file in $(FILES); do \
 			if [ -f "$$file" ]; then \
 				echo "Formatting: $$file"; \
-				.claude-code/hooks/yaml-formatter.sh "$$file"; \
+				.llm-agent/hooks/yaml-formatter.sh "$$file"; \
 			else \
 				echo "$(YELLOW)Warning: File not found: $$file$(NC)"; \
 			fi; \
@@ -140,7 +143,7 @@ format-yaml:
 		for file in $$(find $(LOCAL_CONFIG_PATH) -name "*.yaml" -o -name "*.yml"); do \
 			if [ -f "$$file" ]; then \
 				echo "Formatting: $$file"; \
-				.claude-code/hooks/yaml-formatter.sh "$$file"; \
+				.llm-agent/hooks/yaml-formatter.sh "$$file"; \
 			fi; \
 		done; \
 	fi
@@ -181,7 +184,7 @@ check-env:
 
 # Pull only storage files (for development)
 pull-storage:
-	@rsync -avz $(HA_HOST):$(HA_REMOTE_PATH).storage/ $(LOCAL_CONFIG_PATH).storage/
+	@rsync $(RSYNC_FLAGS) --rsync-path='$(RSYNC_PATH)' $(HA_HOST):$(HA_REMOTE_PATH).storage/ $(LOCAL_CONFIG_PATH).storage/
 
 # Individual validation targets
 validate-yaml: check-setup

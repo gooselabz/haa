@@ -167,6 +167,18 @@ class TestReferenceValidatorUUID(unittest.TestCase):
         registry_ids = self.validator.extract_entity_registry_ids(mixed_data)
         self.assertEqual(registry_ids, {"aabbccddeeff00112233445566778899"})
 
+    def test_device_id_templates_are_skipped(self):
+        """Device_id template expressions should not trigger validation."""
+        automation = {
+            "trigger": {
+                "platform": "state",
+                "device_id": "{{ device_id_pressed }}",
+            }
+        }
+
+        devices = self.validator.extract_device_references(automation)
+        self.assertEqual(devices, set())
+
     def test_get_entity_registry_id_mapping(self):
         """Test entity registry ID to entity_id mapping."""
         mapping = self.validator.get_entity_registry_id_mapping()

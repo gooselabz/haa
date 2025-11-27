@@ -1,0 +1,51 @@
+{
+  "id": "claude-code",
+  "name": "Claude Code",
+  "editor": "claude-code",
+  "entrypoints": [
+    {"command": "make pull", "description": "Sync Home Assistant config from the remote host"},
+    {"command": "make validate", "description": "Run YAML, entity, and official HA validators"},
+    {"command": "make push", "description": "Re-validate, deploy via rsync, then reload HA"},
+    {"command": "make entities ARGS='--search fridge'", "description": "List entities matching a search term"}
+  ],
+  "docs": ["README.md", "../../../HAA.md"],
+  "env": {
+    "requirements": ["python>=3.11", "Claude Code Desktop"],
+    "recommendedExtensions": []
+  },
+  "hooks": {
+    "enabled": true,
+    "posttooluse": [
+      ".llm-agent/hooks/yaml-formatter.sh",
+      ".llm-agent/hooks/posttooluse-ha-validation.sh",
+      ".llm-agent/hooks/posttooluse-python-quality.sh"
+    ],
+    "pretooluse": [
+      ".llm-agent/hooks/pretooluse-ha-push-validation.sh"
+    ]
+  },
+  "validation": {
+    "enabled": true,
+    "auto_run": true,
+    "block_invalid_push": true
+  },
+  "development": {
+    "python": {
+      "enabled": true,
+      "tools": {
+        "formatter": "black",
+        "linter": ["flake8", "pylint"],
+        "type_checker": "mypy",
+        "import_sorter": "isort",
+        "test_runner": "pytest"
+      },
+      "auto_format": true,
+      "auto_lint": true,
+      "line_length": 88
+    },
+    "pre_commit": {
+      "enabled": true,
+      "auto_install": true
+    }
+  }
+}

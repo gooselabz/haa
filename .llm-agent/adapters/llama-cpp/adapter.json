@@ -1,0 +1,31 @@
+{
+  "id": "llama-cpp",
+  "name": "llama.cpp",
+  "editor": "terminal",
+  "entrypoints": [
+    {"command": "make pull", "description": "Download the latest HA config"},
+    {"command": "make validate", "description": "Run validation suite"},
+    {"command": "make push", "description": "Deploy validated changes"},
+    {"command": "make entities ARGS='--area kitchen'", "description": "Inspect entities in a given area"}
+  ],
+  "docs": ["README.md", "../../../HAA.md"],
+  "env": {
+    "requirements": ["python>=3.11", "llama.cpp >= 0.2"],
+    "recommendedExtensions": []
+  },
+  "hooks": {
+    "enabled": true,
+    "posttooluse": [
+      ".llm-agent/hooks/yaml-formatter.sh",
+      ".llm-agent/hooks/posttooluse-ha-validation.sh"
+    ],
+    "pretooluse": [
+      ".llm-agent/hooks/pretooluse-ha-push-validation.sh"
+    ]
+  },
+  "validation": {
+    "enabled": true,
+    "auto_run": true,
+    "block_invalid_push": true
+  }
+}

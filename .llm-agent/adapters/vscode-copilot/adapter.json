@@ -1,0 +1,54 @@
+{
+  "id": "vscode-copilot",
+  "name": "VS Code + GitHub Copilot",
+  "editor": "vscode",
+  "entrypoints": [
+    {"command": "make pull", "description": "Refresh local config from Home Assistant"},
+    {"command": "make validate", "description": "Run YAML, entity, and official HA validators"},
+    {"command": "make push", "description": "Validate and deploy via rsync"},
+    {"command": "make entities ARGS='--domain climate'", "description": "List entities by domain"}
+  ],
+  "docs": ["copilot-instructions.md", "../../../HAA.md"],
+  "env": {
+    "requirements": ["python>=3.11", "VS Code 1.95+"],
+    "recommendedExtensions": [
+      "GitHub.copilot",
+      "GitHub.copilot-chat"
+    ]
+  },
+  "hooks": {
+    "enabled": true,
+    "posttooluse": [
+      ".llm-agent/hooks/yaml-formatter.sh",
+      ".llm-agent/hooks/posttooluse-ha-validation.sh",
+      ".llm-agent/hooks/posttooluse-python-quality.sh"
+    ],
+    "pretooluse": [
+      ".llm-agent/hooks/pretooluse-ha-push-validation.sh"
+    ]
+  },
+  "validation": {
+    "enabled": true,
+    "auto_run": true,
+    "block_invalid_push": true
+  },
+  "development": {
+    "python": {
+      "enabled": true,
+      "tools": {
+        "formatter": "black",
+        "linter": ["flake8", "pylint"],
+        "type_checker": "mypy",
+        "import_sorter": "isort",
+        "test_runner": "pytest"
+      },
+      "auto_format": true,
+      "auto_lint": true,
+      "line_length": 88
+    },
+    "pre_commit": {
+      "enabled": true,
+      "auto_install": true
+    }
+  }
+}

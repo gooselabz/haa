@@ -1,0 +1,31 @@
+{
+  "id": "ollama",
+  "name": "Ollama Local Models",
+  "editor": "terminal",
+  "entrypoints": [
+    {"command": "make pull", "description": "Sync config from Home Assistant"},
+    {"command": "make validate", "description": "Run validation suite"},
+    {"command": "make push", "description": "Deploy back to Home Assistant"},
+    {"command": "make entities ARGS='--search motion'", "description": "Search entities"}
+  ],
+  "docs": ["README.md", "../../../HAA.md"],
+  "env": {
+    "requirements": ["python>=3.11", "ollama>=0.3"],
+    "recommendedExtensions": []
+  },
+  "hooks": {
+    "enabled": true,
+    "posttooluse": [
+      ".llm-agent/hooks/yaml-formatter.sh",
+      ".llm-agent/hooks/posttooluse-ha-validation.sh"
+    ],
+    "pretooluse": [
+      ".llm-agent/hooks/pretooluse-ha-push-validation.sh"
+    ]
+  },
+  "validation": {
+    "enabled": true,
+    "auto_run": true,
+    "block_invalid_push": true
+  }
+}
