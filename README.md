@@ -4,7 +4,9 @@ An LLM-agnostic devkit for Home Assistant automations and configuration manageme
 
 This repository is a forward-looking fork of [philippb/claude-homeassistant](https://github.com/philippb/claude-homeassistant), generalized so multiple LLM assistants can collaborate on Home Assistant automations through a common adapter interface. We incorporate upstream fixes from [PR #23](https://github.com/philippb/claude-homeassistant/pull/23) (template-aware device validation) and [PR #27](https://github.com/philippb/claude-homeassistant/pull/27) (sudo-friendly rsync), and keep fork-specific changes scoped to `.llm-agent/` to ease future upstream syncs.
 
-## 🌟 Features
+---
+
+🌟 Features
 
 - **🤖 LLM-Agnostic**: Works with Claude Code, VS Code + GitHub Copilot, Ollama, llama.cpp, and more
 - **🛡️ Multi-Layer Validation**: YAML syntax, entity references, and official HA validation
@@ -20,8 +22,15 @@ This repository is a forward-looking fork of [philippb/claude-homeassistant](htt
 ```bash
 git clone git@github.com:gooselabz/haa.git
 cd haa
-make setup  # Creates Python venv and installs dependencies
 ```
+
+Then prompt your LLM:
+
+```
+Read and follow the instructions in .llm-agent/adapters/{YourAdapter}/{filename}.md. 
+```
+
+It should take care of the rest!
 
 ### 2. Configure Connection
 
@@ -176,7 +185,7 @@ The system provides three layers of validation:
 ### 1. YAML Syntax Validation
 
 - Validates YAML syntax with HA-specific tags (`!include`, `!secret`, `!input`)
-- Checks file encoding (UTF-8 required)
+- Checks file encoding (UTF-8 required)rm 'config/scenes.yaml'
 - Validates basic HA file structures
 
 ### 2. Entity Reference Validation
