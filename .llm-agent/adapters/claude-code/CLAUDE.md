@@ -1,43 +1,43 @@
-# Claude Code Adapter
+# Claude Code Adapter — haa
 
-Use Anthropic's Claude Code desktop app to collaborate on Home Assistant automations powered by the `haa` toolkit.
+## References
+- `/README-DEV.md` — Development setup, commands, validation pipeline
+- `/.llm-agent/refs/` — Generated context (e.g., `hometopology.md`)
+- `/.llm-agent/prompts/` — Reusable task prompts
 
-## Prerequisites
+## Initialization
 
-- Claude Code (latest desktop build) with file-system access to this repo
-- SSH access from your workstation to the Home Assistant host
-- Python 3.11+ plus the `haa` virtual environment (`make setup`)
-- Optional: [Advanced SSH &amp; Web Terminal](https://github.com/hassio-addons/addon-ssh) add-on inside Home Assistant
+1. Run `make setup`
+2. Read `/README-DEV.md`
+3. Read any files in `/.llm-agent/refs/`
+4. Execute `/.llm-agent/prompts/hometopology-prompt.md` to generate home topology
 
-## Recommended Workflow
+## Workflow
 
-1. **Open the repository in Claude Code** and pin `.llm-agent/settings.json` so Claude loads the guard-rails.
-2. **Describe the automation** you want ("add a dawn lights-off automation").
-3. **Let Claude propose edits**; validate YAML output using `make validate` (Claude knows the command from the adapter manifest).
-4. **Review diffs locally**. Claude can open files but you should confirm changes with `git diff`.
-5. **Deploy with safeguards** using `make push` once validation passes.
+1. Describe automation goal
+2. Propose YAML edits; run `make validate`
+3. Review diffs with `git diff`
+4. Deploy with `make push` only after validation passes
 
-## Helpful Commands
+## Commands
 
-Claude should prioritize the following commands (also listed in `adapter.json`):
+| Command | Purpose |
+|---------|---------|
+| `make pull` | Sync config from HA |
+| `make validate` | YAML + entity + HA checks |
+| `make push` | Validate → deploy → reload |
+| `make entities ARGS='--search <term>'` | Query entity registry |
 
-- `make pull` — sync your live HA config before editing
-- `make validate` — run YAML/entity/offical HA checks locally
-- `make push` — re-run validation, deploy via rsync, and reload HA
-- `make entities ARGS='--search fridge'` — inspect entity registry slices
+## Guardrails
 
-## Prompt Snippetsgit add -A
+- `.llm-agent/hooks/` auto-runs YAML formatting and blocks unsafe pushes
+- Always validate before push
+- Set `USE_RSYNC_SUDO=1` in `.env` if HA host requires sudo for rsync
+
+## System Prompt
 
 ```
-You are operating inside the haa repo. Plan YAML changes first, then run `make validate`. Never call `make push` until validation passes.
+Operating in haa repo. Plan YAML changes first, run `make validate`.
+Never call `make push` until validation passes.
+Query entities with `make entities ARGS='--search <term>'` before editing.
 ```
-
-```
-When you need entity IDs, run `make entities ARGS='--search <term>'` and summarize the results before editing YAML.
-```
-
-## Tips
-
-- The `.llm-agent/` hooks automatically format YAML and block unsafe pushes.
-- Claude can edit multiple files at once; ask it to keep automations small and focused.
-- Mention `USE_RSYNC_SUDO=1` in `.env` if your HA user needs sudo privileges for rsync.

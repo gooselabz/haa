@@ -8,6 +8,8 @@ config/OZW_Log.txt
 config/ip_bans.yaml
 config/.uuid
 config/.HA_VERSION
+.ssh/
+.llm-agent/refs/
 
 # Python
 venv/

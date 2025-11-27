@@ -1,36 +1,45 @@
-# llama.cpp Adapter
+# llama.cpp Adapter — haa
 
-This adapter documents how to pair `haa` with self-hosted models exposed via [llama.cpp](https://github.com/ggerganov/llama.cpp) (CLI or server mode).
+## References
+- `/README-DEV.md` — Development setup, commands, validation pipeline
+- `/.llm-agent/refs/` — Generated context (e.g., `hometopology.md`)
+- `/.llm-agent/prompts/` — Reusable task prompts
 
-## Prerequisites
+## Initialization
 
-- A recent llama.cpp build (server or `llama.cpp --interactive-first` shell)
-- Downloaded model (e.g., `llama-3.1-70b-instruct.Q4_K_M.gguf`)
-- Shell or UI that forwards your prompts to llama.cpp
-- Local checkout of the haa repository with SSH access to your Home Assistant host
-- Python 3.11+ tools installed via `make setup`
+1. Run `make setup`
+2. Read `/README-DEV.md`
+3. Read any files in `/.llm-agent/refs/`
+4. Execute `/.llm-agent/prompts/hometopology-prompt.md` to generate home topology
 
-## Usage Pattern
+## Workflow
 
-1. **Prime the model** with a system prompt describing the haa workflow (see `prompts/llama-cpp.txt`, add your own variants).
-2. **Request a plan** before edits. Ask the model to reference `HAA.md` for architecture rules.
-3. **Apply patches manually** (recommended) or via automation.
-4. **Validate** with `make validate`.
-5. **Deploy** using `make push` only after validation is green.
+1. Prime model with system prompt below
+2. Request a plan before edits
+3. Apply patches manually
+4. Run `make validate`
+5. Deploy with `make push` after validation passes
 
-## Common Commands
+## Commands
 
-- `make pull`
-- `make validate`
-- `make push`
-- `make entities ARGS='--area kitchen'`
+| Command | Purpose |
+|---------|---------|
+| `make pull` | Sync config from HA |
+| `make validate` | YAML + entity + HA checks |
+| `make push` | Validate → deploy → reload |
+| `make entities ARGS='--area kitchen'` | Area-specific entity view |
 
-## Prompt Tips
+## Guardrails
 
-- Remind the model that `.llm-agent/hooks/` auto-runs YAML formatting and validation.
-- Ask it to quote entity IDs from `make entities` output before editing YAML.
-- Mention the `USE_RSYNC_SUDO` flag if your HA host requires sudo for rsync.
+- Quote entity IDs from `make entities` output before editing YAML
+- `.llm-agent/hooks/` auto-runs YAML formatting and validation
+- Set `USE_RSYNC_SUDO=1` in `.env` if HA host requires sudo for rsync
 
-## Extending
+## System Prompt
 
-Add any llama.cpp-specific helper scripts, prompt templates, or workflows inside this directory so they remain isolated from upstream files.
+```
+Home Assistant automation engineer using haa toolkit.
+Plan changes first, reference README-DEV.md for architecture.
+Provide diffs, ask user to run `make validate`.
+Never request `make push` until validation is clean.
+```

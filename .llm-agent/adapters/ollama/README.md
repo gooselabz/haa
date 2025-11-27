@@ -1,39 +1,45 @@
-# Ollama Adapter
+# Ollama Adapter — haa
 
-Run haa workflows with local models served by [Ollama](https://ollama.ai) (e.g., `llama3`, `phi3`, `mistral`).
+## References
+- `/README-DEV.md` — Development setup, commands, validation pipeline
+- `/.llm-agent/refs/` — Generated context (e.g., `hometopology.md`)
+- `/.llm-agent/prompts/` — Reusable task prompts
 
-## Prerequisites
+## Initialization
 
-- Ollama installed with at least one code-capable model
-- A terminal/chat interface wired into Ollama (e.g., Continue.dev, Open WebUI, custom scripts)
-- Local checkout of the haa repository with SSH access to your Home Assistant host
-- Python 3.11+ virtual environment (`make setup`)
+1. Run `make setup`
+2. Read `/README-DEV.md`
+3. Read any files in `/.llm-agent/refs/`
+4. Execute `/.llm-agent/prompts/hometopology-prompt.md` to generate home topology
 
-## Suggested Workflow
+## Workflow
 
-1. **Prime your model** with the system prompt from `prompts/ollama.txt` (create more as needed).
-2. **Describe the change** you want. Have the model draft YAML or Python updates.
-3. **Apply the patch manually** (or with tooling like `apply_patch`).
-4. **Validate** using `make validate`.
-5. **Deploy** with `make push` once validation succeeds.
+1. Prime model with system prompt below
+2. Describe change; model drafts YAML/Python
+3. Apply patch manually
+4. Run `make validate`
+5. Deploy with `make push` after validation passes
 
-## Key Commands
+## Commands
 
-- `make pull`
-- `make validate`
-- `make push`
-- `make entities ARGS='--search motion'`
+| Command | Purpose |
+|---------|---------|
+| `make pull` | Sync config from HA |
+| `make validate` | YAML + entity + HA checks |
+| `make push` | Validate → deploy → reload |
+| `make entities ARGS='--search motion'` | Query entity registry |
 
-## Prompt Starter
+## Guardrails
+
+- Local models may hallucinate entity IDs — confirm via `make entities`
+- Always validate before push
+- Set `USE_RSYNC_SUDO=1` in `.env` if HA host requires sudo for rsync
+
+## System Prompt
 
 ```
-You are a Home Assistant automation engineer using the haa toolkit.
-Plan changes first, provide diffs, then ask me to run `make validate`.
+Home Assistant automation engineer using haa toolkit.
+Plan changes first, provide diffs, ask user to run `make validate`.
 Never request `make push` until validation output is clean.
+Query entities before referencing IDs in YAML.
 ```
-
-## Notes
-
-- Local models may hallucinate entity IDs—always confirm via `make entities`.
-- Use `USE_RSYNC_SUDO=1` in `.env` if your HA host requires sudo for rsync.
-- Store any additional prompt snippets inside this directory to keep adapters isolated.
